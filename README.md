@@ -29,6 +29,10 @@ A working reference implementation is included at `api/generate.js` (Vercel serv
 
 If the endpoint is missing or errors, the page shows a fallback: the member copies the brief into Claude by hand and pastes the result back. Do not remove that path.
 
+## Business context
+
+The brief now opens with a THE BUSINESS block built from three member fields (what the business does, how they talk, an optional true proof story). When no proof story is given, the brief explicitly forbids inventing results. Any replacement backend keeps better copy automatically because the context travels inside the prompt.
+
 ## Rules
 
 - One file, no frameworks, no CDN scripts.

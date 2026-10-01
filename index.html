@@ -100,7 +100,18 @@
   <div class="grid">
     <div>
       <div class="card">
-        <div class="num-label">01 · Fill</div><h2>The five blanks</h2>
+        <div class="num-label">01 · Your business</div><h2>Tell it who you are</h2>
+        <div class="h-sub">Thirty seconds here makes every line sound like you, not like a template. The AI uses this to write the copy specifically for your business.</div>
+        <label>What your business does, and for whom<small>One or two sentences, the way you would say it to a friend.</small></label>
+        <textarea data-key="biz_what" placeholder="e.g. I teach solo consultants how to productize their advice, so they stop selling hours. Most of my clients are 40+, mid-career, great at the work, bad at marketing it."></textarea>
+        <label>How you talk<small>Phrases you actually use, words you never use, your tone. Paste from your Voice DNA if you have it.</small></label>
+        <textarea data-key="biz_voice" placeholder="e.g. Direct, warm, a bit dry. I say 'let us keep it simple' a lot. Never corporate words, never hype."></textarea>
+        <label>One real result or story (optional)<small>Something true the post can lean on. No numbers you cannot back up.</small></label>
+        <input data-key="biz_proof" placeholder="e.g. A client used this exact checklist and booked three calls in a week.">
+      </div>
+
+      <div class="card">
+        <div class="num-label">02 · Fill</div><h2>The five blanks</h2>
         <div class="fillbar" id="fillbar"><div class="track"><div id="fillpct"></div></div><b id="filltxt">0 OF 5 BLANKS</b></div>
         <div class="h-sub">The shape never changes: I just made THING for PERSON who wants RESULT in TIMEFRAME. Want a copy? Drop KEYWORD in the comments.</div>
         <label>The THING you made<small>Your giveaway. A checklist, a prompt, a template, a scorecard. It should sound like a thing: "The ___".</small></label>
@@ -121,7 +132,7 @@
 
     <div>
       <div class="card" style="background:var(--ink); border-color:var(--ink);">
-        <div class="num-label">02 · Watch it assemble</div><div class="preview-label">Your post, assembling live</div>
+        <div class="num-label">03 · Watch it assemble</div><div class="preview-label">Your post, assembling live</div>
         <div class="preview" id="preview"></div>
         <div class="charline"><span id="charN">0 characters</span><span id="charFit"></span></div>
         <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
@@ -142,7 +153,7 @@
       </div>
 
       <div class="card" id="outCard" style="display:none;">
-        <div class="num-label">03 · Ship</div><h2>Ready to ship</h2>
+        <div class="num-label">04 · Ship</div><h2>Ready to ship</h2>
         <div class="h-sub">Three post variants, the DM version, your capture line, and the four replies to have ready BEFORE you post.</div>
         <div class="tabs" id="outTabs"></div>
         <div class="out" id="out"></div>
@@ -204,6 +215,11 @@ function buildBrief(){
 "",
 "THE SHAPE (never break it): I just made [THING] for [PERSON] who wants [RESULT] in [TIMEFRAME]. One personality line. Want a copy? Drop [KEYWORD] in the comments.",
 "RULES: the first two lines stop the exact person mid-scroll. Works unchanged on LinkedIn, Instagram, Facebook and X. The keyword is one word, easy to spell. Delivery is by email, so getting a copy means joining the email list. No hashtags, no links in the post.",
+"",
+"THE BUSINESS (write the copy specifically for this person):",
+"- What they do and for whom: " + v("biz_what"),
+"- How they talk, match this voice exactly: " + v("biz_voice"),
+((state.biz_proof||"").trim() ? "- A true story the post can lean on: " + v("biz_proof") : "- No proof story provided: do not invent any result, number or client story"),
 "",
 "INPUTS:",
 "- The thing: " + v("thing"),
@@ -312,6 +328,9 @@ $("btnCopyBrief").addEventListener("click", ()=>{
 
 /* worked example: Danny's AI Founder Circle hand-raiser */
 const EXAMPLE = {
+  biz_what: "AI Founder Circle: I teach solo founders to build an AI employee that does their content, admin and follow-up, so the business stops depending on them for everything.",
+  biz_voice: "Warm, direct, short sentences. I say things twice when they matter. Team, let us keep it simple. Never hype, never corporate.",
+  biz_proof: "I was the midnight founder myself. The first hand-raiser I posted brought leads the same evening.",
   thing: "The 10-Minute Content Week prompt",
   person: "the solo founder still writing every post at midnight",
   result: "a full week of content done in one sitting",
