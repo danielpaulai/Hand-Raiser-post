@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hand-Raiser Post Writer · AI Founder Circle</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --red:#E90D41; --red-deep:#B81D3B; --ink:#17171B; --dim:#6B6B74; --cream:#FAF8F4; --card:#FFFFFF; --line:#E8E2D8; --green:#1E8A4C; --yellow:#B98900; --mono:'JetBrains Mono','SF Mono',Menlo,monospace; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.6; padding:0 20px 80px;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  h1,h2,h3{font-family:'Rethink Sans',sans-serif; letter-spacing:-.02em;}
+  .hero{background:radial-gradient(1200px 500px at 85% -10%, rgba(233,13,65,.28), transparent 60%), var(--ink); color:#fff; margin:0 -20px; padding:64px 20px 56px;}
+  .hero-in{max-width:1100px; margin:0 auto;}
+  .kicker{font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--red); margin:0 0 14px; display:flex; align-items:center; gap:10px;}
+  .kicker::before{content:""; width:26px; height:1px; background:var(--red);}
+  h1{font-size:clamp(34px,5.5vw,56px); font-weight:800; line-height:1.05; letter-spacing:-.03em;}
+  h1 em{font-style:normal; color:var(--red);}
+  .sub{font-size:17px; color:rgba(255,255,255,.72); margin-top:16px; max-width:620px;}
+  .hero .stat-row{display:flex; gap:26px; margin-top:26px; flex-wrap:wrap;}
+  .hero .stat{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.55); border-left:2px solid var(--red); padding-left:10px;}
+  .num-label{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--red); margin-bottom:6px;}
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.on{opacity:1; transform:none;}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:28px; align-items:start;}
+  @media(max-width:860px){.grid{grid-template-columns:1fr;}}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:24px 26px; margin-bottom:20px; box-shadow:0 14px 40px rgba(23,23,27,.05);}
+  .card h2{font-size:18px; font-weight:800; margin-bottom:6px;}
+  .card .h-sub{font-size:13px; color:var(--dim); margin-bottom:12px;}
+  label{display:block; font-family:'Rethink Sans',sans-serif; font-weight:700; font-size:13.5px; margin:14px 0 5px;}
+  label:first-of-type{margin-top:0;}
+  label small{display:block; font-weight:400; font-family:'Inter',sans-serif; font-size:12px; color:var(--dim);}
+  input, textarea{width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:9px; font-family:'Inter',sans-serif; font-size:14px; color:var(--ink); background:#FCFCFB;}
+  input:focus, textarea:focus{outline:none; border-color:var(--ink);}
+  textarea{resize:vertical; min-height:64px;}
+  ::placeholder{color:#B4B2AC;}
+  button{font-family:'Rethink Sans',sans-serif; font-weight:700; font-size:13.5px; border-radius:9px; cursor:pointer; padding:10px 18px; border:1px solid var(--line); background:var(--card); color:var(--ink);}
+  button:hover{border-color:var(--ink);}
+  button.primary{background:var(--red); border-color:var(--red); color:#fff;}
+  button.primary:hover{filter:brightness(.92);}
+  .preview{background:var(--ink); color:#fff; border-radius:14px; padding:22px 24px; font-size:15px; line-height:1.7; white-space:pre-wrap;}
+  .preview .ph{color:rgba(255,255,255,.4);}
+  .preview-label{font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--red); margin-bottom:10px;}
+  .meter{font-size:12px; color:var(--dim); margin-top:8px; font-family:'Inter',sans-serif;}
+  .meter b{color:var(--green);}
+  .meter.warn b{color:var(--yellow);}
+  .score-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .score-row:last-of-type{border-bottom:none;}
+  .score-row .w2{font-size:10px; color:var(--red); border:1px solid var(--red); border-radius:4px; padding:1px 5px; margin-left:6px; font-family:'Rethink Sans',sans-serif; font-weight:700;}
+  .pills{display:flex; gap:6px;}
+  .pill{padding:5px 13px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:11px; font-weight:700; cursor:pointer; color:var(--dim); font-family:'Rethink Sans',sans-serif;}
+  .pill.yes.sel{background:var(--green); border-color:var(--green); color:#fff;}
+  .pill.no.sel{background:var(--red); border-color:var(--red); color:#fff;}
+  .grade{border-radius:10px; padding:14px 16px; margin-top:14px; border:1px solid var(--line); background:var(--cream); font-size:14px;}
+  .grade b{font-family:'Rethink Sans',sans-serif; font-size:17px;}
+  .grade.g b{color:var(--green);} .grade.y b{color:var(--yellow);} .grade.r b{color:var(--red);}
+  .out{margin-top:16px;}
+  .out-block{border:1px solid var(--line); border-radius:12px; margin-top:14px; overflow:hidden;}
+  .out-h{display:flex; align-items:center; justify-content:space-between; background:var(--cream); border-bottom:1px solid var(--line); padding:9px 14px;}
+  .out-h b{font-family:'Rethink Sans',sans-serif; font-size:13px;}
+  .out-h button{padding:5px 12px; font-size:12px;}
+  .out-b{padding:14px 16px; font-size:14px; white-space:pre-wrap;}
+  .status{font-size:12.5px; margin-top:10px; color:var(--dim);}
+  .status.ok{color:var(--green);} .status.warn{color:var(--yellow);}
+  #fallback{display:none; margin-top:14px;}
+  #fallback textarea{font-size:12px; min-height:100px;}
+  footer{margin-top:40px; font-size:12px; color:var(--dim); text-align:center;}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-in reveal on">
+  <div class="kicker">AI Founder Circle · Post Writer</div>
+  <h1>One post.<br>Real leads. <em>Today.</em></h1>
+  <p class="sub">A hand-raiser is one short post to the audience you already have that makes the right people raise their hand. Fill in five blanks, let AI write it in your words, press post. Every comment is a lead.</p>
+  <div class="stat-row"><div class="stat">5 blanks</div><div class="stat">3 variants + 4 replies</div><div class="stat">Live today</div></div>
+</div></div>
+<div class="wrap">
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="num-label">01 · Fill</div><h2>The five blanks</h2>
+        <div class="h-sub">The shape never changes: I just made THING for PERSON who wants RESULT in TIMEFRAME. Want a copy? Drop KEYWORD in the comments.</div>
+        <label>The THING you made<small>Your giveaway. A checklist, a prompt, a template, a scorecard. It should sound like a thing: "The ___".</small></label>
+        <input data-key="thing" placeholder='e.g. The 10-Minute Content Week checklist'>
+        <label>The PERSON it is for<small>So specific they say "that's me". Not "business owners".</small></label>
+        <input data-key="person" placeholder="e.g. solo consultants who still write every post themselves">
+        <label>The RESULT they want<small>Concrete and small enough to believe.</small></label>
+        <input data-key="result" placeholder="e.g. a full week of content done in one sitting">
+        <label>The TIMEFRAME<small>Small promises are believable.</small></label>
+        <input data-key="timeframe" placeholder="e.g. this week">
+        <label>The KEYWORD<small>One on-theme word, easy to spell. They drop it in the comments.</small></label>
+        <input data-key="keyword" placeholder="e.g. WEEK">
+        <label>One personality line (optional)<small>Something only you would say. AI will suggest one if you leave it empty.</small></label>
+        <input data-key="personality" placeholder="e.g. Built it at my kitchen table between school runs.">
+      </div>
+
+    </div>
+
+    <div>
+      <div class="card" style="background:var(--ink); border-color:var(--ink);">
+        <div class="num-label">02 · Watch it assemble</div><div class="preview-label">Your post, assembling live</div>
+        <div class="preview" id="preview"></div>
+        <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+          <button class="primary" id="btnWrite">Write My Hand-Raiser with AI</button>
+          <button id="btnCopyRaw" style="background:transparent; color:#fff; border-color:rgba(255,255,255,.3);">Copy This Draft</button>
+          <button id="btnExample" style="background:transparent; color:#fff; border-color:rgba(255,255,255,.3);">See an Example</button>
+        </div>
+        <div class="status" id="status" style="color:rgba(255,255,255,.6);"></div>
+        <div id="fallback">
+          <label style="color:#fff;">The writing brief<small style="color:rgba(255,255,255,.5);">Copy this into Claude, then paste the response below.</small></label>
+          <textarea id="briefBox" readonly></textarea>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <button id="btnCopyBrief" style="background:transparent; color:#fff; border-color:rgba(255,255,255,.3);">Copy the Brief</button>
+          </div>
+          <label style="color:#fff; margin-top:10px;">Paste the response here</label>
+          <textarea id="pasteBox" placeholder="Paste here, it renders below..."></textarea>
+        </div>
+      </div>
+
+      <div class="card" id="outCard" style="display:none;">
+        <div class="num-label">03 · Ship</div><h2>Ready to ship</h2>
+        <div class="h-sub">Three post variants, the DM version, your capture line, and the four replies to have ready BEFORE you post.</div>
+        <div class="out" id="out"></div>
+      </div>
+    </div>
+  </div>
+  <footer>Purely Personal · AI Founder Circle · The snack sells the meal.</footer>
+</div>
+
+<script>
+const LS = "afc-hand-raiser-v1";
+let state = {};
+try{ state = JSON.parse(localStorage.getItem(LS)) || {}; }catch(e){ state = {}; }
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){} }
+const $ = id => document.getElementById(id);
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+document.querySelectorAll("[data-key]").forEach(el => {
+  if(state[el.dataset.key] !== undefined) el.value = state[el.dataset.key];
+  el.addEventListener("input", ()=>{ state[el.dataset.key] = el.value; save(); render(); });
+});
+
+function draft(){
+  const v = k => (state[k]||"").trim();
+  const ph = (k, label) => v(k) || "[" + label + "]";
+  let d = "I just made " + ph("thing","THE THING") + " for " + ph("person","THE PERSON") + " who wants " + ph("result","THE RESULT") + " in " + ph("timeframe","TIMEFRAME") + ".";
+  if(v("personality")) d += "\n\n" + v("personality");
+  d += "\n\nWant a copy? Drop " + (v("keyword") ? v("keyword").toUpperCase() : "[KEYWORD]") + " in the comments and I will send it over.";
+  return d;
+}
+function render(){
+  const v = k => (state[k]||"").trim();
+  $("preview").innerHTML = esc(draft()).replace(/\[(.+?)\]/g, '<span class="ph">[$1]</span>');
+  renderOut();
+}
+
+function buildBrief(){
+  const v = k => (state[k]||"").trim() || "(not provided: suggest something fitting and mark it [SUGGESTED])";
+  return [
+"You are a direct response copywriter who writes like a person typing, never like a marketing department. Write a HAND-RAISER package from these inputs.",
+"",
+"THE SHAPE (never break it): I just made [THING] for [PERSON] who wants [RESULT] in [TIMEFRAME]. One personality line. Want a copy? Drop [KEYWORD] in the comments.",
+"RULES: the first two lines stop the exact person mid-scroll. Works unchanged on LinkedIn, Instagram, Facebook and X. The keyword is one word, easy to spell. Delivery is by email, so getting a copy means joining the email list. No hashtags, no links in the post.",
+"",
+"INPUTS:",
+"- The thing: " + v("thing"),
+"- The person: " + v("person"),
+"- The result: " + v("result"),
+"- The timeframe: " + v("timeframe"),
+"- The keyword: " + v("keyword"),
+"- Personality line, use or improve: " + v("personality"),
+"",
+"WRITE, in this exact order with these exact plain-text headings:",
+"POST VARIANT 1",
+"(the straight version of the shape, tight)",
+"POST VARIANT 2",
+"(same shape, opens with the person's pain in their own spoken words, then the make announcement)",
+"POST VARIANT 3",
+"(same shape, opens with the one personality line, more casual)",
+"DM VARIANT",
+"(for sending directly to 10 warm people instead of posting: shorter, personal, asks if they want the copy, no keyword)",
+"CAPTURE LINE",
+"(one sentence to say in the comments or DM when sending: where do I email it to you, framed warmly, plus one small question about their situation)",
+"REPLY 1 DELIVERY",
+"(they commented the keyword: confirm, ask for email, one small question)",
+"REPLY 2 THANKS",
+"(they said thanks after receiving: warm, zero pitch)",
+"REPLY 3 REAL QUESTION",
+"(they asked a real question: answer pattern, generous, pitch only if they ask what you do)",
+"REPLY 4 DAY-3 SILENCE",
+"(three days quiet after delivery: give one new useful thing, no guilt, no chasing)",
+"",
+"VOICE RULES: plain English, short sentences, warm, second person. Important things can be said twice. NEVER use an em dash. No hype words. Nothing fake, no invented numbers. Where input was missing, invent something sensible and mark it [SUGGESTED].",
+"OUTPUT FORMAT: plain text only, exactly the headings above in capitals, each followed by its content. No markdown, no commentary."
+  ].join("\n");
+}
+
+function renderOut(){
+  const raw = (state.ai_out||"").trim();
+  if(!raw){ $("outCard").style.display = "none"; return; }
+  $("outCard").style.display = "block";
+  const heads = ["POST VARIANT 1","POST VARIANT 2","POST VARIANT 3","DM VARIANT","CAPTURE LINE","REPLY 1 DELIVERY","REPLY 2 THANKS","REPLY 3 REAL QUESTION","REPLY 4 DAY-3 SILENCE"];
+  const rx = new RegExp("^(" + heads.join("|") + ")\\s*$", "mi");
+  let blocks = [], cur = null;
+  raw.split(/\r?\n/).forEach(line => {
+    const t = line.trim().toUpperCase().replace(/[:*#]+$/,"").replace(/^[*#\s]+/,"");
+    if(heads.includes(t)){ cur = {h:t, body:[]}; blocks.push(cur); }
+    else if(cur){ cur.body.push(line); }
+  });
+  if(!blocks.length) blocks = [{h:"OUTPUT", body:raw.split(/\r?\n/)}];
+  $("out").innerHTML = blocks.map((b,i) =>
+    '<div class="out-block"><div class="out-h"><b>' + esc(b.h) + '</b><button onclick="copyBlock(' + i + ')">Copy</button></div><div class="out-b" id="blk' + i + '">' + esc(b.body.join("\n").trim()) + '</div></div>'
+  ).join("");
+  window.__blocks = blocks;
+}
+function copyBlock(i){
+  navigator.clipboard.writeText(window.__blocks[i].body.join("\n").trim());
+  const st = $("status"); st.className = "status ok"; st.textContent = "Copied. Go post it.";
+}
+
+$("btnCopyRaw").addEventListener("click", ()=>{
+  navigator.clipboard.writeText(draft());
+  const st = $("status"); st.className = "status ok"; st.textContent = "Draft copied.";
+});
+$("pasteBox").addEventListener("input", e => { state.ai_out = e.target.value; save(); renderOut(); });
+
+$("btnWrite").addEventListener("click", async ()=>{
+  const st = $("status");
+  st.className = "status"; st.style.color = "rgba(255,255,255,.6)"; st.textContent = "Writing your hand-raiser, about 20 seconds...";
+  try{
+    const r = await fetch("/api/generate", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({prompt: buildBrief()})});
+    if(!r.ok) throw new Error("no endpoint");
+    const data = await r.json();
+    if(!data.html) throw new Error("empty");
+    state.ai_out = data.html.replace(/<[^>]+>/g, "\n"); save();
+    renderOut();
+    st.className = "status ok"; st.style.color = ""; st.textContent = "Done. Your package is ready below. Post variant 1 first.";
+  }catch(err){
+    st.className = "status warn"; st.style.color = ""; st.textContent = "No AI endpoint on this copy. Use the brief below with Claude.";
+    $("fallback").style.display = "block";
+    $("briefBox").value = buildBrief();
+  }
+});
+$("btnCopyBrief").addEventListener("click", ()=>{
+  navigator.clipboard.writeText($("briefBox").value);
+  const st = $("status"); st.className = "status ok"; st.textContent = "Brief copied. Paste it into Claude, then paste the answer back here.";
+});
+
+/* worked example: Danny's AI Founder Circle hand-raiser */
+const EXAMPLE = {
+  thing: "The 10-Minute Content Week prompt",
+  person: "the solo founder still writing every post at midnight",
+  result: "a full week of content done in one sitting",
+  timeframe: "this week",
+  keyword: "WEEK",
+  personality: "I built this for myself first, because I was the midnight founder.",
+  ai_out: [
+"POST VARIANT 1",
+"I just made The 10-Minute Content Week prompt for the solo founder still writing every post at midnight who wants a full week of content done in one sitting, this week.",
+"",
+"I built this for myself first, because I was the midnight founder.",
+"",
+"Want a copy? Drop WEEK in the comments and I will send it over.",
+"",
+"POST VARIANT 2",
+"It is 11:48pm and you are still typing a post nobody asked you to write. Sound familiar?",
+"",
+"I just made The 10-Minute Content Week prompt for the solo founder in exactly that spot. One sitting, a full week of content, this week.",
+"",
+"Want a copy? Drop WEEK in the comments and I will send it over.",
+"",
+"POST VARIANT 3",
+"I built this for myself first, because I was the midnight founder.",
+"",
+"It is called The 10-Minute Content Week prompt. For the solo founder still writing every post alone who wants a full week of content done in one sitting.",
+"",
+"Want a copy? Drop WEEK in the comments.",
+"",
+"DM VARIANT",
+"Hey [NAME], I just finished something I think is exactly your thing. A prompt that turns one sitting into a full week of content. I am sending it to a few people I know would actually use it. Want a copy?",
+"",
+"CAPTURE LINE",
+"Love it. What is the best email to send it to? And quick question so I send the right version: are you posting mostly on LinkedIn or somewhere else?",
+"",
+"REPLY 1 DELIVERY",
+"WEEK received! What is the best email for it? And one quick question: how many posts are you managing to ship in a normal week right now?",
+"",
+"REPLY 2 THANKS",
+"So glad it landed. Use it this week while the energy is there, and tell me what it produced. I read every reply.",
+"",
+"REPLY 3 REAL QUESTION",
+"Great question. [Answer it fully and generously here, no holding back.] If you get stuck using it, just reply, I am happy to look at what you made.",
+"",
+"REPLY 4 DAY-3 SILENCE",
+"No reply needed to this one. I just recorded a 2-minute walkthrough of the prompt in action, thought it might make it easier to start: [LINK]. Whenever this week's content is done, I would love to see it."
+  ].join("\n")
+};
+document.getElementById("btnExample").addEventListener("click", ()=>{
+  Object.assign(state, EXAMPLE); save();
+  document.querySelectorAll("[data-key]").forEach(el => { if(state[el.dataset.key] !== undefined) el.value = state[el.dataset.key]; });
+  
+render();
+document.querySelectorAll('.card').forEach(c => c.classList.add('reveal'));
+const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); }), {threshold:.12});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
