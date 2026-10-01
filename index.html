@@ -66,6 +66,26 @@
   #fallback{display:none; margin-top:14px;}
   #fallback textarea{font-size:12px; min-height:100px;}
   footer{margin-top:40px; font-size:12px; color:var(--dim); text-align:center;}
+  /* fill progress */
+  .fillbar{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .fillbar .track{flex:1; height:5px; background:var(--line); border-radius:3px; overflow:hidden;}
+  .fillbar .track div{height:100%; width:0%; background:var(--red); border-radius:3px; transition:width .4s ease;}
+  .fillbar b{font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--dim); white-space:nowrap; font-weight:500;}
+  .fillbar.done b{color:var(--green);}
+  input.filled, textarea.filled{border-color:#CBD9CE; background:#FBFDFB;}
+  /* char counter */
+  .charline{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; color:rgba(255,255,255,.45); margin-top:10px;}
+  .charline .ok{color:#7ED2A0;}
+  /* output tabs */
+  .tabs{display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;}
+  .tab{font-family:var(--mono); font-size:11px; letter-spacing:.08em; padding:7px 14px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--dim); cursor:pointer; font-weight:500;}
+  .tab.sel{background:var(--ink); border-color:var(--ink); color:#fff;}
+  /* posted celebration */
+  .posted{display:none; border:1px solid var(--green); background:#F3FAF5; border-radius:12px; padding:16px 18px; margin-top:16px;}
+  .posted.show{display:block; animation:pop .4s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes pop{from{transform:scale(.92); opacity:0;} to{transform:scale(1); opacity:1;}}
+  .posted b{color:var(--green); font-family:'Rethink Sans',sans-serif;}
+  .posted p{font-size:13.5px; margin-top:4px;}
 </style>
 </head>
 <body>
@@ -81,6 +101,7 @@
     <div>
       <div class="card">
         <div class="num-label">01 · Fill</div><h2>The five blanks</h2>
+        <div class="fillbar" id="fillbar"><div class="track"><div id="fillpct"></div></div><b id="filltxt">0 OF 5 BLANKS</b></div>
         <div class="h-sub">The shape never changes: I just made THING for PERSON who wants RESULT in TIMEFRAME. Want a copy? Drop KEYWORD in the comments.</div>
         <label>The THING you made<small>Your giveaway. A checklist, a prompt, a template, a scorecard. It should sound like a thing: "The ___".</small></label>
         <input data-key="thing" placeholder='e.g. The 10-Minute Content Week checklist'>
@@ -102,6 +123,7 @@
       <div class="card" style="background:var(--ink); border-color:var(--ink);">
         <div class="num-label">02 · Watch it assemble</div><div class="preview-label">Your post, assembling live</div>
         <div class="preview" id="preview"></div>
+        <div class="charline"><span id="charN">0 characters</span><span id="charFit"></span></div>
         <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
           <button class="primary" id="btnWrite">Write My Hand-Raiser with AI</button>
           <button id="btnCopyRaw" style="background:transparent; color:#fff; border-color:rgba(255,255,255,.3);">Copy This Draft</button>
@@ -122,7 +144,13 @@
       <div class="card" id="outCard" style="display:none;">
         <div class="num-label">03 · Ship</div><h2>Ready to ship</h2>
         <div class="h-sub">Three post variants, the DM version, your capture line, and the four replies to have ready BEFORE you post.</div>
+        <div class="tabs" id="outTabs"></div>
         <div class="out" id="out"></div>
+        <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+          <button id="btnCopyAll">Copy Everything</button>
+          <button class="primary" id="btnPosted">I posted it 🎉</button>
+        </div>
+        <div class="posted" id="postedBox"><b>That is the whole game. It is live.</b><p>Now watch the comments for your keyword. Your four replies are ready under the Replies tab: delivery first, then thanks, then the real questions. Day 3 quiet? Use reply 4, give something new, zero guilt.</p></div>
       </div>
     </div>
   </div>
@@ -153,6 +181,19 @@ function draft(){
 function render(){
   const v = k => (state[k]||"").trim();
   $("preview").innerHTML = esc(draft()).replace(/\[(.+?)\]/g, '<span class="ph">[$1]</span>');
+  const blanks = ["thing","person","result","timeframe","keyword"];
+  const filled = blanks.filter(k => v(k)).length;
+  $("fillpct").style.width = (filled/5*100) + "%";
+  $("filltxt").textContent = filled + " OF 5 BLANKS";
+  $("fillbar").classList.toggle("done", filled === 5);
+  document.querySelectorAll("[data-key]").forEach(el => el.classList.toggle("filled", !!(state[el.dataset.key]||"").trim()));
+  const n = draft().replace(/\[.+?\]/g, "").length;
+  $("charN").textContent = n + " characters";
+  const fit = $("charFit");
+  if(filled === 5){
+    fit.textContent = n <= 280 ? "fits everywhere, even X" : n <= 600 ? "strong length for LinkedIn and Instagram" : "long. trim the personality line";
+    fit.className = n <= 600 ? "ok" : "";
+  } else { fit.textContent = ""; }
   renderOut();
 }
 
@@ -210,16 +251,37 @@ function renderOut(){
     else if(cur){ cur.body.push(line); }
   });
   if(!blocks.length) blocks = [{h:"OUTPUT", body:raw.split(/\r?\n/)}];
-  $("out").innerHTML = blocks.map((b,i) =>
-    '<div class="out-block"><div class="out-h"><b>' + esc(b.h) + '</b><button onclick="copyBlock(' + i + ')">Copy</button></div><div class="out-b" id="blk' + i + '">' + esc(b.body.join("\n").trim()) + '</div></div>'
-  ).join("");
   window.__blocks = blocks;
+  const groups = {
+    "POSTS": b => b.h.startsWith("POST VARIANT") || b.h === "OUTPUT",
+    "DM + CAPTURE": b => b.h === "DM VARIANT" || b.h === "CAPTURE LINE",
+    "REPLIES": b => b.h.startsWith("REPLY")
+  };
+  if(!window.__tab || !groups[window.__tab]) window.__tab = "POSTS";
+  $("outTabs").innerHTML = Object.keys(groups).map(g => {
+    const count = blocks.filter(groups[g]).length;
+    return count ? '<button class="tab' + (g === window.__tab ? ' sel' : '') + '" onclick="setTab(\'' + g + '\')">' + g + ' · ' + count + '</button>' : '';
+  }).join("");
+  const show = blocks.map((b,i) => ({b,i})).filter(x => groups[window.__tab](x.b));
+  $("out").innerHTML = show.map(x =>
+    '<div class="out-block"><div class="out-h"><b>' + esc(x.b.h) + '</b><button onclick="copyBlock(' + x.i + ')">Copy</button></div><div class="out-b">' + esc(x.b.body.join("\n").trim()) + '</div></div>'
+  ).join("");
 }
+function setTab(g){ window.__tab = g; renderOut(); }
 function copyBlock(i){
   navigator.clipboard.writeText(window.__blocks[i].body.join("\n").trim());
   const st = $("status"); st.className = "status ok"; st.textContent = "Copied. Go post it.";
 }
 
+$("btnCopyAll").addEventListener("click", ()=>{
+  const all = (window.__blocks||[]).map(b => b.h + "\n" + b.body.join("\n").trim()).join("\n\n");
+  navigator.clipboard.writeText(all);
+  const st = $("status"); st.className = "status ok"; st.textContent = "Everything copied: posts, DM, capture line and replies.";
+});
+$("btnPosted").addEventListener("click", ()=>{
+  $("postedBox").classList.add("show");
+  window.__tab = "REPLIES"; renderOut();
+});
 $("btnCopyRaw").addEventListener("click", ()=>{
   navigator.clipboard.writeText(draft());
   const st = $("status"); st.className = "status ok"; st.textContent = "Draft copied.";
