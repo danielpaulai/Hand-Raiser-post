@@ -300,7 +300,10 @@ const EXAMPLE = {
 document.getElementById("btnExample").addEventListener("click", ()=>{
   Object.assign(state, EXAMPLE); save();
   document.querySelectorAll("[data-key]").forEach(el => { if(state[el.dataset.key] !== undefined) el.value = state[el.dataset.key]; });
-  
+  render();
+  const st = $("status"); st.className = "status ok"; st.style.color = ""; st.textContent = "Example loaded: the AI Founder Circle hand-raiser. Now swap in your own five blanks.";
+});
+
 render();
 document.querySelectorAll('.card').forEach(c => c.classList.add('reveal'));
 const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); }), {threshold:.12});
